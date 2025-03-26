@@ -1,4 +1,5 @@
 <?php
+
 namespace Aon\AcornDocs\Facades;
 
 use Illuminate\Support\Facades\Facade;
