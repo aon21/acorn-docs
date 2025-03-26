@@ -1,0 +1,30 @@
+{
+  "name": "aon/acorn-docs",
+  "type": "package",
+  "description": "Create documentation for your project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mantas Tautvaiša",
+      "email": "mantas.tautvaisa@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Aon\\AcornDocs\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.2"
+  },
+  "extra": {
+    "acorn": {
+      "providers": [
+        "Aon\\AcornDocs\\Providers\\AcornDocsServiceProvider"
+      ],
+      "aliases": {
+        "AcornDocs": "Aon\\AcornDocs\\Facades\\AcornDocs"
+      }
+    }
+  }
+}
