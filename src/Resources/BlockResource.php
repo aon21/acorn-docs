@@ -10,21 +10,10 @@ class BlockResource
         protected BlockDTO $block
     ) {}
 
-    public function toArray(): array
-    {
-        return [
-            'name'        => $this->block->name,
-            'description' => $this->block->description,
-            'category'    => $this->block->category,
-            'icon'        => $this->block->icon,
-            'supports'    => $this->block->supports,
-        ];
-    }
-
     public function viewData(): array
     {
         return [
-            'block' => $this->toArray(),
+            'block' => $this->block,
         ];
     }
 }

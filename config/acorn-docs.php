@@ -24,4 +24,19 @@ return [
    ],
 
    'output_path' => base_path('docs/blocks'),
+
+    'annotations' => [
+        'blockUsage',
+        'author',
+        'version',
+    ],
+
+    'properties' => [
+        'name',
+        'description',
+        'supports',
+        'styles',
+        'example',
+        'template',
+    ],
 ];
