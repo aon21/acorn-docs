@@ -9,14 +9,14 @@ use Aon\AcornDocs\Console\GenerateDocsCommand;
 use Aon\AcornDocs\Interfaces\BlockParserInterface;
 use Aon\AcornDocs\Interfaces\DocRendererInterface;
 use Aon\AcornDocs\Parsers\BlockParser;
-use Aon\AcornDocs\Renderers\MarkdownRenderer;
+use Aon\AcornDocs\Renderers\MarkdownDocRenderer;
 
 class AcornDocsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(BlockParserInterface::class, BlockParser::class);
-        $this->app->singleton(DocRendererInterface::class, MarkdownRenderer::class);
+        $this->app->singleton(DocRendererInterface::class, MarkdownDocRenderer::class);
 
         $this->app->singleton(AcornDocs::class, function ($app) {
             return new AcornDocs(
