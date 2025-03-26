@@ -16,6 +16,12 @@ return [
     | and console command.
     |
     */
+   'paths' => [
+       [
+           'namespace' => 'App\\Blocks\\',
+           'directory' => 'app/Blocks',
+       ],
+   ],
 
-    'output_path' => base_path('docs/blocks'),
+   'output_path' => base_path('docs/blocks'),
 ];

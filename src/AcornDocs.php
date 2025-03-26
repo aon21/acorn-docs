@@ -1,55 +1,43 @@
 <?php
+
 namespace Aon\AcornDocs;
 
 use Illuminate\Filesystem\Filesystem;
-use phpDocumentor\Reflection\DocBlockFactory;
-use ReflectionClass;
+use Aon\AcornDocs\Interfaces\BlockParserInterface;
+use Aon\AcornDocs\Interfaces\DocRendererInterface;
+use Aon\AcornDocs\DTO\BlockDTO;
 
 class AcornDocs
 {
-    protected Filesystem $files;
+    public function __construct(
+        protected Filesystem $files,
+        protected BlockParserInterface $parser,
+        protected DocRendererInterface $renderer,
+    ) {}
 
-    public function __construct(Filesystem $files)
+    public function generate(array $config): void
     {
-        $this->files = $files;
-    }
+        foreach ($config['paths'] as $path) {
+            $namespace = rtrim($path['namespace'], '\\') . '\\';
+            $dir = base_path($path['directory']);
+            $files = glob($dir . '/*.php');
 
-    public function generate(string $blocksPath, string $outputPath): void
-    {
-        $docFactory = DocBlockFactory::createInstance();
-        $namespace = 'App\\Blocks\\';
+            foreach ($files as $file) {
+                require_once $file;
 
-        $files = glob($blocksPath . '/*.php');
+                $class = $namespace . basename($file, '.php');
+                $block = $this->parser->parse($class);
 
-        foreach ($files as $file) {
-            require_once $file;
+                if (!$block instanceof BlockDTO) {
+                    continue;
+                }
 
-            $className = $namespace . basename($file, '.php');
-            if (!class_exists($className)) {
-                continue;
+                $markdown = $this->renderer->render($block);
+                $filename = strtolower(class_basename($class)) . '.md';
+
+                $this->files->ensureDirectoryExists($config['output_path']);
+                $this->files->put($config['output_path'] . '/' . $filename, $markdown);
             }
-
-            $refClass = new ReflectionClass($className);
-            $doc = $refClass->getDocComment();
-            $blockDoc = $doc ? $docFactory->create($doc) : null;
-            $props = $refClass->getDefaultProperties();
-
-            $name = $props['name'] ?? $refClass->getShortName();
-            $desc = $props['description'] ?? '';
-            $category = $props['category'] ?? '';
-            $icon = $props['icon'] ?? '';
-            $supports = json_encode($props['supports'] ?? [], JSON_PRETTY_PRINT);
-
-            $markdown = "# {$name} Block\n\n";
-            $markdown .= "**Description:** {$desc}\n\n";
-            $markdown .= "**Category:** {$category}\n\n";
-            $markdown .= "**Icon:** {$icon}\n\n";
-            $markdown .= "## Supports\n\n```json\n{$supports}\n```\n";
-
-            $fileName = strtolower($refClass->getShortName()) . '.md';
-            $this->files->ensureDirectoryExists($outputPath);
-            $this->files->put($outputPath . '/' . $fileName, $markdown);
         }
     }
 }
-
