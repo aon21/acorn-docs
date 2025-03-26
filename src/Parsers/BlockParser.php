@@ -24,14 +24,60 @@ class BlockParser implements BlockParserInterface
         }
 
         $refClass = new ReflectionClass($class);
-        $props = $refClass->getDefaultProperties();
 
         return new BlockDTO(
-            name: $props['name'] ?? $refClass->getShortName(),
-            description: $props['description'] ?? '',
-            category: $props['category'] ?? '',
-            icon: $props['icon'] ?? '',
-            supports: $props['supports'] ?? [],
+            properties: $this->getBlockProperties($refClass),
+            annotations: $this->getBlockAnnotations($refClass)
         );
+    }
+
+    protected function getBlockAnnotations(\ReflectionClass $class): array
+    {
+        $results = [];
+        $docComment = $class->getDocComment();
+
+        if (! $docComment) {
+            return $results;
+        }
+
+        $docBlock = $this->docFactory->create($docComment);
+        $requestedTags = config('acorn-docs.annotations', []);
+
+        foreach ($requestedTags as $tagName) {
+            $tags = $docBlock->getTagsByName($tagName);
+
+            if (empty($tags)) {
+                continue;
+            }
+
+            $tag = $tags[0];
+
+            if (!method_exists($tag, 'getDescription')) {
+                continue;
+            }
+
+            $description = $tag->getDescription();
+
+            if (!method_exists($description, 'render')) {
+                continue;
+            }
+
+            $results[$tagName] = $description->render();
+        }
+
+        return $results;
+    }
+
+    protected function getBlockProperties(ReflectionClass $class): array
+    {
+        $results = [];
+        $requested = config('acorn-docs.properties', []);
+        $defaults = $class->getDefaultProperties();
+
+        foreach ($requested as $key) {
+            $results[$key] = $defaults[$key] ?? null;
+        }
+
+        return $results;
     }
 }

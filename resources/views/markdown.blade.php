@@ -1,12 +1,21 @@
-# {{ $block['name'] }} Block
+# {{ $block->properties['name'] }} Block
 
-**Description:** {{ $block['description'] }}
+@foreach ($block->properties as $key => $value)
+  @if (is_array($value))
+    ## {{ ucfirst($key) }}
 
-**Category:** {{ $block['category'] }}
+    ```json
+    {!! json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) !!}
+    ```
+  @else
+    **{{ ucfirst($key) }}:** {{ $value }}
+  @endif
+@endforeach
 
-**Icon:** {{ $block['icon'] }}
+@if (!empty($block->annotations))
+  ## Annotations
 
-## Supports
-
-```json
-{!! json_encode($block['supports'], JSON_PRETTY_PRINT) !!}
+  @foreach ($block->annotations as $tag => $content)
+    - **{{ ucfirst($tag) }}:** {{ $content }}
+  @endforeach
+@endif
