@@ -34,7 +34,7 @@ class AcornDocsServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'acorn-docs');
 
         $this->publishes([
-            __DIR__.'/../../resources/views' => resource_path('views/acorn-docs'),
+            __DIR__.'/../../resources/views' => resource_path('views/vendor/acorn-docs'),
         ], 'views');
 
         $this->publishes([
