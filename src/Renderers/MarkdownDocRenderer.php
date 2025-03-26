@@ -7,8 +7,8 @@ use Aon\AcornDocs\Resources\BlockResource;
 
 class MarkdownDocRenderer implements DocRendererInterface
 {
-    public function render(BlockResource $blockResource): string
+    public function render(BlockResource $block): string
     {
-        return view('acorn-docs::markdown', $blockResource->viewData())->render();
+        return view('acorn-docs::markdown', $block->viewData())->render();
     }
 }
