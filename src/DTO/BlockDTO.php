@@ -6,6 +6,7 @@ class BlockDTO
 {
     public function __construct(
         public ?array $properties = [],
-        public ?array $annotations = [],
+        public ?array $classAnnotations = [],
+        public ?array $classMethodAnnotations = [],
     ) {}
 }

@@ -3,8 +3,9 @@
 namespace Aon\AcornDocs\Parsers;
 
 use phpDocumentor\Reflection\DocBlockFactoryInterface;
-use ReflectionClass;
 use phpDocumentor\Reflection\DocBlockFactory;
+use ReflectionClass;
+use ReflectionMethod;
 use Aon\AcornDocs\Interfaces\BlockParserInterface;
 use Aon\AcornDocs\DTO\BlockDTO;
 
@@ -27,42 +28,52 @@ class BlockParser implements BlockParserInterface
 
         return new BlockDTO(
             properties: $this->getBlockProperties($refClass),
-            annotations: $this->getBlockAnnotations($refClass)
+            classAnnotations: $this->getClassAnnotations($refClass),
+            classMethodAnnotations: $this->getClassMethodAnnotations($refClass),
         );
     }
 
-    protected function getBlockAnnotations(\ReflectionClass $class): array
+    protected function getClassAnnotations(ReflectionClass $class): array
+    {
+        return $this->extractAnnotationsFromDocComment($class->getDocComment());
+    }
+
+    protected function getClassMethodAnnotations(ReflectionClass $class): array
     {
         $results = [];
-        $docComment = $class->getDocComment();
+        $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        if (! $docComment) {
-            return $results;
+        foreach ($methods as $method) {
+            $annotations = $this->extractAnnotationsFromDocComment($method->getDocComment());
+
+            if (!empty($annotations)) {
+                $results[$method->getName()] = $annotations;
+            }
+        }
+
+        return $results;
+    }
+
+    private function extractAnnotationsFromDocComment(?string $docComment): array
+    {
+        if (!$docComment) {
+            return [];
         }
 
         $docBlock = $this->docFactory->create($docComment);
         $requestedTags = config('acorn-docs.annotations', []);
+        $results = [];
 
         foreach ($requestedTags as $tagName) {
-            $tags = $docBlock->getTagsByName($tagName);
+            $tag = $docBlock->getTagsByName($tagName)[0] ?? null;
 
-            if (empty($tags)) {
-                continue;
+            if (
+                $tag &&
+                method_exists($tag, 'getDescription') &&
+                method_exists($tag->getDescription(), 'render')
+            ) {
+                $results[$tagName] = $tag->getDescription()->render();
             }
-
-            $tag = $tags[0];
-
-            if (!method_exists($tag, 'getDescription')) {
-                continue;
-            }
-
-            $description = $tag->getDescription();
-
-            if (!method_exists($description, 'render')) {
-                continue;
-            }
-
-            $results[$tagName] = $description->render();
         }
 
         return $results;
