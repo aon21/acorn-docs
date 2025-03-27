@@ -8,7 +8,7 @@
 
 - Parses your `app/Blocks` or custom block paths
 - Extracts metadata like `name`, `description`, `supports`, `styles`, etc.
-- Supports custom PHPDoc annotations for additional metadata. Editable via config.
+- Supports custom PHPDoc annotations for additional metadata for class and class methods. Editable via config.
 - Outputs Markdown docs via Blade views (fully customizable)
 - Designed for Acf-composer users
 
@@ -34,12 +34,28 @@ This will create `config/acorn-docs.php` with default paths like:
 
 ```php
 'paths' => [
-    [
-        'namespace' => 'App\\Blocks\\',
-        'directory' => 'app/Blocks',
-    ],
+   [
+       'namespace' => 'App\\Blocks\\',
+       'directory' => 'app/Blocks',
+   ],
 ],
+
 'output_path' => base_path('docs/blocks'),
+
+'annotations' => [
+    'settings',
+    'fields'
+],
+
+'properties' => [
+    'name',
+    'description',
+    'supports',
+    'parent',
+    'styles',
+    'example',
+    'template',
+],
 ```
 
 ---
